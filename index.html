@@ -1,0 +1,1181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Photinus Films — A Science Content Studio</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Space+Mono:ital,wght@0,400;1,400&display=swap');
+
+:root {
+  --paper:      #F2F6EC;
+  --paper-warm: #E8EEE0;
+  --paper-card: #EDF2E5;
+  --rule:       #C4D0AE;
+  --rule-light: #D8E4C4;
+  --glow:       #5C7A08;
+  --glow-mid:   #7A9C10;
+  --glow-light: #A8C030;
+  --amber:      #8C6010;
+  --red:        #7A2020;
+  --ink:        #141E0C;
+  --ink-mid:    #2E3E20;
+  --ink-soft:   #4E6438;
+  --ink-ghost:  #7A9060;
+  --section-h:  100vh;
+}
+
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--paper);
+  font-family: 'EB Garamond', Georgia, serif;
+  color: var(--ink);
+  overflow-x: hidden;
+}
+
+/* ── PROGRESS LINE ─────────────────────────────────────── */
+#progress {
+  position: fixed;
+  left: 0; top: 0;
+  width: 3px;
+  height: 0%;
+  background: linear-gradient(to bottom, var(--glow-light), var(--glow));
+  z-index: 100;
+  transition: height 0.05s linear;
+}
+
+/* ── NAV DOTS ──────────────────────────────────────────── */
+#nav-dots {
+  position: fixed;
+  right: 24px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  z-index: 100;
+}
+
+.dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--rule);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: none;
+  padding: 0;
+}
+
+.dot.active {
+  background: var(--glow);
+  transform: scale(1.6);
+}
+
+.dot:hover { background: var(--glow-mid); }
+
+/* ── SECTIONS ──────────────────────────────────────────── */
+.section {
+  min-height: var(--section-h);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 0;
+  position: relative;
+  border-bottom: 1px solid var(--rule-light);
+  will-change: filter, opacity, transform;
+  transition: filter 0.4s ease, opacity 0.4s ease, transform 0.4s ease;
+}
+
+.section:last-child { border-bottom: none; }
+
+.section-inner {
+  max-width: 860px;
+  width: 100%;
+  padding: 0 80px 0 100px;
+  position: relative;
+}
+
+/* Alternating background tint */
+.section:nth-child(even) { background: var(--paper-warm); }
+
+/* ── COVER ─────────────────────────────────────────────── */
+#s-cover {
+  min-height: 100vh;
+  background: var(--paper);
+  align-items: center;
+}
+
+.cover-eyebrow {
+  font-family: 'Space Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.22em;
+  color: var(--ink-ghost);
+  text-transform: uppercase;
+  margin-bottom: 48px;
+  display: block;
+}
+
+.cover-title {
+  font-size: 80px;
+  font-weight: 500;
+  font-style: italic;
+  color: var(--ink);
+  line-height: 0.92;
+  letter-spacing: -0.025em;
+  margin-bottom: 0;
+}
+
+.cover-title em { font-style: normal; color: var(--glow); }
+
+.cover-rule {
+  width: 80px; height: 1px;
+  background: var(--glow-mid);
+  opacity: 0.5;
+  margin: 32px 0;
+}
+
+.cover-sub {
+  font-size: 17px;
+  color: var(--ink-soft);
+  line-height: 1.82;
+  font-style: italic;
+  max-width: 440px;
+  margin-bottom: 48px;
+}
+
+.cover-meta {
+  font-family: 'Space Mono', monospace;
+  font-size: 8px;
+  letter-spacing: 0.12em;
+  color: var(--ink-ghost);
+  text-transform: uppercase;
+  line-height: 2.2;
+}
+
+/* SVG cross-section ornament */
+.cover-ornament {
+  position: absolute;
+  right: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  opacity: 0.1;
+  pointer-events: none;
+}
+
+/* ── SECTION TYPOGRAPHY ────────────────────────────────── */
+.stag {
+  font-family: 'Space Mono', monospace;
+  font-size: 8px;
+  letter-spacing: 0.22em;
+  color: var(--glow-mid);
+  text-transform: uppercase;
+  display: block;
+  margin-bottom: 14px;
+}
+
+.section-watermark {
+  position: absolute;
+  top: 32px;
+  left: 88px;
+  font-family: 'EB Garamond', serif;
+  font-size: 160px;
+  font-weight: 500;
+  font-style: italic;
+  color: var(--glow);
+  opacity: 0.07;
+  line-height: 1;
+  pointer-events: none;
+  letter-spacing: -0.04em;
+  z-index: 0;
+}
+
+.section-inner > *:not(.section-watermark) { position: relative; z-index: 1; }
+
+h1 {
+  font-size: 36px;
+  font-weight: 500;
+  font-style: italic;
+  color: var(--ink);
+  line-height: 1.15;
+  margin-bottom: 28px;
+  letter-spacing: -0.01em;
+  max-width: 580px;
+}
+
+h2 {
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--ink);
+  margin: 34px 0 10px;
+}
+
+h2.minor {
+  font-size: 14px;
+  font-weight: 500;
+  font-style: italic;
+  color: var(--ink-soft);
+  margin: 24px 0 8px;
+}
+
+p {
+  font-size: 15.5px;
+  line-height: 1.9;
+  color: var(--ink-mid);
+  margin-bottom: 16px;
+  max-width: 580px;
+}
+
+p.lead {
+  font-size: 19px;
+  line-height: 1.75;
+  color: var(--ink);
+  font-style: italic;
+  margin-bottom: 24px;
+  max-width: 540px;
+}
+
+/* ── PULL QUOTE ────────────────────────────────────────── */
+.pull {
+  border-left: 2.5px solid var(--glow);
+  padding: 6px 0 6px 22px;
+  margin: 24px 0;
+  max-width: 520px;
+}
+
+.pull p {
+  font-size: 20px;
+  font-style: italic;
+  color: var(--ink);
+  margin: 0;
+  line-height: 1.62;
+  max-width: 100%;
+}
+
+.pull cite {
+  display: block;
+  font-family: 'Space Mono', monospace;
+  font-size: 7px;
+  letter-spacing: 0.1em;
+  color: var(--ink-ghost);
+  text-transform: uppercase;
+  margin-top: 8px;
+  font-style: normal;
+}
+
+/* ── NOTE BLOCK ────────────────────────────────────────── */
+.note {
+  background: var(--paper-card);
+  border: 1px solid var(--rule);
+  border-left: 3px solid var(--glow-mid);
+  padding: 16px 20px;
+  margin: 22px 0;
+  max-width: 580px;
+  position: relative;
+}
+
+.note::before {
+  content: attr(data-label);
+  position: absolute;
+  top: -9px; left: 14px;
+  background: var(--paper-card);
+  padding: 0 7px;
+  font-family: 'Space Mono', monospace;
+  font-size: 7.5px;
+  color: var(--glow);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+.note p { font-size: 14px; max-width: 100%; margin:0; color: var(--ink-mid); }
+.note p + p { margin-top: 10px; }
+
+/* ── RED NOTE ──────────────────────────────────────────── */
+.red-note {
+  color: var(--red);
+  font-style: italic;
+  font-size: 13.5px;
+  border-left: 2px solid var(--red);
+  padding-left: 14px;
+  margin: 16px 0;
+  max-width: 560px;
+  line-height: 1.7;
+}
+
+/* ── LIST ──────────────────────────────────────────────── */
+ul.clean {
+  list-style: none;
+  padding: 0;
+  margin: 14px 0 20px;
+  max-width: 560px;
+}
+
+ul.clean li {
+  font-size: 15px;
+  line-height: 1.75;
+  color: var(--ink-mid);
+  padding: 7px 0 7px 20px;
+  position: relative;
+  border-bottom: 1px solid var(--rule-light);
+}
+
+ul.clean li:last-child { border-bottom: none; }
+ul.clean li::before { content: '–'; position: absolute; left: 0; color: var(--glow-mid); }
+ul.clean li strong { color: var(--ink); font-weight: 600; }
+
+/* ── PIPELINE ──────────────────────────────────────────── */
+.pipeline {
+  display: flex;
+  gap: 0;
+  margin: 22px 0;
+  max-width: 580px;
+  flex-wrap: wrap;
+  row-gap: 8px;
+}
+
+.pipe-step {
+  flex: 1;
+  background: var(--paper-card);
+  border: 1px solid var(--rule);
+  border-right: none;
+  padding: 11px 14px;
+  text-align: center;
+  min-width: 80px;
+}
+
+.pipe-step:last-child { border-right: 1px solid var(--rule); }
+
+.pipe-step span {
+  display: block;
+  font-family: 'Space Mono', monospace;
+  font-size: 7px;
+  letter-spacing: 0.12em;
+  color: var(--ink-ghost);
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.pipe-step strong { font-size: 12.5px; color: var(--ink); font-weight: 600; display: block; line-height: 1.3; }
+.pipe-step em { font-size: 11px; color: var(--ink-soft); display: block; margin-top: 2px; line-height: 1.3; }
+
+/* ── STAT ROW ──────────────────────────────────────────── */
+.stats {
+  display: flex;
+  gap: 0;
+  margin: 28px 0;
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+  max-width: 580px;
+}
+
+.stat {
+  flex: 1;
+  padding: 18px 0;
+  border-right: 1px solid var(--rule);
+}
+
+.stat:last-child { border-right: none; }
+.stat:not(:first-child) { padding-left: 22px; }
+
+.stat-n {
+  font-size: 32px;
+  font-weight: 500;
+  color: var(--glow);
+  line-height: 1;
+  display: block;
+}
+
+.stat-l {
+  font-family: 'Space Mono', monospace;
+  font-size: 7.5px;
+  letter-spacing: 0.08em;
+  color: var(--ink-ghost);
+  text-transform: uppercase;
+  display: block;
+  margin-top: 5px;
+  line-height: 1.55;
+}
+
+/* ── REVENUE GRID ──────────────────────────────────────── */
+.rev-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin: 20px 0;
+  max-width: 580px;
+}
+
+.rev-cell {
+  background: var(--paper-card);
+  border: 1px solid var(--rule);
+  padding: 14px 16px;
+}
+
+.rev-cell h3 { font-size: 13px; font-weight: 600; color: var(--ink); margin-bottom: 6px; }
+.rev-cell p { font-size: 12.5px; line-height: 1.6; margin: 0; color: var(--ink-soft); max-width: 100%; }
+
+/* ── SENTIMENT BARS ────────────────────────────────────── */
+.sentiment {
+  margin: 20px 0;
+  max-width: 560px;
+}
+
+.sent-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 6px 0;
+}
+
+.sent-label {
+  font-size: 12.5px;
+  color: var(--ink-mid);
+  width: 170px;
+  flex-shrink: 0;
+  text-align: right;
+}
+
+.sent-track {
+  flex: 1;
+  height: 8px;
+  background: var(--rule-light);
+}
+
+.sent-bar {
+  height: 100%;
+  background: var(--glow);
+  transition: width 1s ease;
+}
+
+.sent-bar.lo { background: var(--rule); }
+.sent-bar.hi { background: var(--glow-mid); }
+
+.sent-pct {
+  font-family: 'Space Mono', monospace;
+  font-size: 9px;
+  color: var(--ink-ghost);
+  width: 34px;
+}
+
+/* ── SIDE-SCROLL TABLE ─────────────────────────────────── */
+.table-wrap {
+  max-width: 100%;
+  overflow-x: auto;
+  margin: 20px 0;
+  border: 1px solid var(--rule);
+  -webkit-overflow-scrolling: touch;
+  position: relative;
+}
+
+.table-wrap::after {
+  content: '→ scroll';
+  position: absolute;
+  right: 0; top: 0;
+  background: linear-gradient(to right, transparent, var(--paper-card) 60%);
+  padding: 8px 12px 8px 40px;
+  font-family: 'Space Mono', monospace;
+  font-size: 7px;
+  letter-spacing: 0.12em;
+  color: var(--ink-ghost);
+  text-transform: uppercase;
+  pointer-events: none;
+}
+
+.data-table {
+  width: max-content;
+  min-width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.data-table th {
+  font-family: 'Space Mono', monospace;
+  font-size: 7.5px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--glow);
+  padding: 10px 14px 8px;
+  border-bottom: 1px solid var(--rule);
+  text-align: left;
+  font-weight: normal;
+  background: var(--paper-card);
+  white-space: nowrap;
+}
+
+.data-table td {
+  padding: 9px 14px;
+  color: var(--ink-mid);
+  border-bottom: 1px solid var(--rule-light);
+  line-height: 1.4;
+  vertical-align: top;
+  max-width: 280px;
+}
+
+.data-table tr:last-child td { border-bottom: none; }
+.data-table td:first-child { color: var(--ink); font-weight: 500; white-space: nowrap; }
+
+.active-tag { color: var(--glow); font-weight: 600; }
+.none-tag { color: var(--ink-ghost); }
+
+/* ── NOTABLE COMMENT CARDS ─────────────────────────────── */
+.comment-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 580px;
+  margin: 20px 0;
+}
+
+.comment-card {
+  background: var(--paper-card);
+  border: 1px solid var(--rule-light);
+  padding: 14px 18px;
+}
+
+.comment-source {
+  font-family: 'Space Mono', monospace;
+  font-size: 7.5px;
+  letter-spacing: 0.1em;
+  color: var(--ink-ghost);
+  text-transform: uppercase;
+  display: block;
+  margin-bottom: 6px;
+}
+
+.comment-text {
+  font-size: 14.5px;
+  font-style: italic;
+  color: var(--ink);
+  line-height: 1.65;
+}
+
+/* ── ASIDE ─────────────────────────────────────────────── */
+.aside {
+  float: right;
+  clear: right;
+  width: 200px;
+  margin: 0 0 20px 28px;
+  padding: 12px 14px;
+  border-left: 2px solid var(--rule);
+  font-size: 12.5px;
+  line-height: 1.65;
+  color: var(--ink-soft);
+  font-style: italic;
+}
+
+.clearfix::after { content: ''; display: table; clear: both; }
+
+/* ── FOOTNOTE ──────────────────────────────────────────── */
+.footnote {
+  font-size: 10.5px;
+  color: var(--ink-ghost);
+  border-top: 1px solid var(--rule-light);
+  padding-top: 14px;
+  margin-top: 40px;
+  font-style: italic;
+  line-height: 1.8;
+  max-width: 560px;
+}
+
+/* ── ENTRANCE ANIMATIONS ───────────────────────────────── */
+.reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.reveal-delay-1 { transition-delay: 0.1s; }
+.reveal-delay-2 { transition-delay: 0.2s; }
+.reveal-delay-3 { transition-delay: 0.3s; }
+.reveal-delay-4 { transition-delay: 0.4s; }
+.reveal-delay-5 { transition-delay: 0.5s; }
+
+/* Pull quote border draw */
+.pull {
+  border-left-width: 0;
+  transition: border-left-width 0.6s ease 0.3s;
+}
+.pull.visible { border-left-width: 2.5px; }
+
+/* ── FOOTER ────────────────────────────────────────────── */
+footer {
+  background: var(--ink);
+  color: var(--paper);
+  padding: 60px 100px;
+  font-family: 'Space Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  line-height: 2.2;
+  color: var(--ink-ghost);
+}
+
+footer .footer-title {
+  font-family: 'EB Garamond', serif;
+  font-size: 28px;
+  font-style: italic;
+  color: var(--paper);
+  display: block;
+  margin-bottom: 16px;
+  letter-spacing: 0;
+  text-transform: none;
+  font-weight: 500;
+}
+
+</style>
+</head>
+<body>
+
+<div id="progress"></div>
+
+<nav id="nav-dots" aria-label="Section navigation">
+  <button class="dot active" data-target="s-cover" title="Cover"></button>
+  <button class="dot" data-target="s-studio" title="The Studio"></button>
+  <button class="dot" data-target="s-why-now" title="Why Now"></button>
+  <button class="dot" data-target="s-audience" title="Audience"></button>
+  <button class="dot" data-target="s-show" title="The Show"></button>
+  <button class="dot" data-target="s-revenue" title="Revenue"></button>
+  <button class="dot" data-target="s-channels" title="Channel Landscape"></button>
+  <button class="dot" data-target="s-comments" title="Comment Research"></button>
+</nav>
+
+
+<!-- ══════════════════════════ COVER ══════════════════════════════ -->
+<section class="section" id="s-cover">
+  <div class="section-inner">
+
+    <svg class="cover-ornament" width="260" height="300" viewBox="0 0 260 300" aria-hidden="true">
+      <ellipse cx="130" cy="140" rx="90" ry="115" stroke="#6A8C0A" stroke-width="0.7" stroke-dasharray="5,4" fill="none"/>
+      <ellipse cx="130" cy="140" rx="60" ry="78" stroke="#6A8C0A" stroke-width="0.5" fill="none"/>
+      <ellipse cx="130" cy="140" rx="30" ry="38" stroke="#6A8C0A" stroke-width="0.9" fill="none"/>
+      <circle cx="130" cy="140" r="8" fill="#6A8C0A" opacity="0.3"/>
+      <line x1="40" y1="140" x2="220" y2="140" stroke="#6A8C0A" stroke-width="0.4"/>
+      <line x1="130" y1="25" x2="130" y2="255" stroke="#6A8C0A" stroke-width="0.4"/>
+      <ellipse cx="130" cy="140" rx="90" ry="38" stroke="#6A8C0A" stroke-width="0.3" stroke-dasharray="2,5" fill="none"/>
+      <circle cx="130" cy="140" r="18" stroke="#6A8C0A" stroke-width="0.25" stroke-dasharray="1,4" fill="none"/>
+      <line x1="182" y1="84" x2="210" y2="60" stroke="#6A8C0A" stroke-width="0.5"/>
+      <text x="212" y="58" font-family="Georgia" font-size="8" fill="#7A9C10" font-style="italic">Photinus Films</text>
+    </svg>
+
+    <span class="cover-eyebrow reveal">Photinus Films · A Science Content Studio</span>
+    <p class="cover-title reveal reveal-delay-1">Where did<br/>life come<br/>from<em>?</em></p>
+    <div class="cover-rule reveal reveal-delay-2"></div>
+    <p class="cover-sub reveal reveal-delay-3">A working concept document for a studio built around the hardest questions humans have ever asked — and how to tell those stories in a way that brings people together rather than driving them apart.</p>
+    <div class="cover-meta reveal reveal-delay-4">
+      First show: WT: Origin of Life<br/>
+      Format: Hybrid 3D animation + multi-voice<br/>
+      Platform: YouTube primary · v.02 — May 2026
+    </div>
+
+  </div>
+</section>
+
+
+<!-- ══════════════════════════ 01 STUDIO ══════════════════════════ -->
+<section class="section" id="s-studio">
+  <div class="section-inner">
+    <div class="section-watermark" aria-hidden="true">01</div>
+
+    <span class="stag reveal">Section 01 — The Studio</span>
+    <h1 class="reveal reveal-delay-1">What Photinus Films Is</h1>
+
+    <p class="lead reveal reveal-delay-2">Photinus Films is a science content studio. Its core function is designing and producing science storytelling — taking research, data, and scientific inquiry from primary sources and turning it into content that audiences actually want to watch.</p>
+
+    <p class="reveal reveal-delay-3">The model operates across two tracks simultaneously. The first is the company's own YouTube channel, beginning with a show called <em>WT: Origin of Life</em>. The second is a commercial pipeline offered to external clients — science organizations, research institutions, government agencies, and companies — who need their work communicated to a general audience.</p>
+
+    <p class="reveal">The name refers to the firefly family, <em>Lampyridae</em>. Individual lights, blinking independently, that together illuminate something in the dark. It describes the multi-voice format of the show and the broader mission of the studio: making things visible that are hard to see.</p>
+
+    <div class="note reveal" data-label="Brand Position">
+      <p>Photinus Films is not a production company that takes client briefs. It is a studio that builds content pipelines — repeatable, scalable systems for translating scientific material into narrative video. The commercial offering is the same pipeline used to make the company's own shows, applied on behalf of clients who need their story told.</p>
+    </div>
+
+    <h2 class="reveal">The Pipeline</h2>
+    <div class="pipeline reveal">
+      <div class="pipe-step"><span>Source</span><strong>Papers, books</strong><em>labs, interviews</em></div>
+      <div class="pipe-step"><span>Distill</span><strong>Extract</strong><em>narrative core</em></div>
+      <div class="pipe-step"><span>Shape</span><strong>Script</strong><em>for watchability</em></div>
+      <div class="pipe-step"><span>Animate</span><strong>3D production</strong><em>AI-assisted</em></div>
+      <div class="pipe-step"><span>Publish</span><strong>Multi-format</strong><em>YouTube output</em></div>
+    </div>
+
+    <p class="footnote reveal">The studio name and show title are working designations. Show name TBD; <em>WT: Origin of Life</em> used throughout this document as working title.</p>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════ 02 WHY NOW ═════════════════════════ -->
+<section class="section" id="s-why-now">
+  <div class="section-inner">
+    <div class="section-watermark" aria-hidden="true">02</div>
+
+    <span class="stag reveal">Section 02 — Context</span>
+    <h1 class="reveal reveal-delay-1">Why This Show, Why Now</h1>
+
+    <p class="lead reveal reveal-delay-2">Two conditions have converged: a growing audience demand for content that doesn't push people further into their existing positions, and a complete absence of any channel owning the origin of life question.</p>
+
+    <h2 class="reveal">The Counter-Trend to Outrage</h2>
+
+    <div class="aside reveal">YouTube's 2025 algorithm change: long-form content (30+ min) now receives 35–45% better promotion than in 2024. The platform is rewarding depth.</div>
+
+    <p class="reveal">The assumption in content strategy has been that conflict and tension drive engagement. That is still true for a large portion of the platform. But the research now shows a meaningful and growing segment of the audience actively seeking the opposite.</p>
+
+    <p class="reveal">YouTube's own 2025 culture report documents that audiences are rewarding creators who offer nuance and depth. Research from UC Santa Barbara found that three to five minutes of inspiring content per day measurably reduced stress over ten days. Awe — the emotion reliably produced by questions at cosmic scale — reduces self-focus neurologically and increases people's sense of connection to communities and shared purpose.</p>
+
+    <div class="note reveal" data-label="Research Note">
+      <p>Awe reduces activity in the default mode network — the part of the brain associated with self-focus. In moments of awe, the sense of self shrinks. This is linked to "identity fusion" — a feeling of belonging to something larger than oneself.</p>
+      <p style="font-family:'Space Mono',monospace;font-size:8px;color:var(--ink-ghost);margin-top:8px;letter-spacing:0.04em;">Sources: UC Berkeley awe research · Song et al., Emotion journal, 2025 · Nabi, UC Santa Barbara, 2025</p>
+    </div>
+
+    <div class="clearfix">
+      <h2 class="reveal">The Niche Gap</h2>
+      <p class="reveal">There is no dedicated YouTube channel owning the origin of life question. Kurzgesagt published one video in 2023 — 8.2 million views. Be Smart's standalone episode crossed 2.6 million. PBS Eons covers paleontology but not abiogenesis. Academic debate content exists but is not produced for general audiences.</p>
+    </div>
+
+    <h2 class="reveal">Editorial Stance</h2>
+    <p class="reveal">The show does not attempt to resolve the question. The value to the audience is not an answer — it is a better set of questions. This show aims to create dinner table conversations where family members who believe in both sides of the argument feel capable of joining in a discussion together — curious, informed, and without needing to win.</p>
+
+  </div>
+</section>
+
+
+<!-- ══════════════════════════ 03 AUDIENCE ════════════════════════ -->
+<section class="section" id="s-audience">
+  <div class="section-inner">
+    <div class="section-watermark" aria-hidden="true">03</div>
+
+    <span class="stag reveal">Section 03 — Audience</span>
+    <h1 class="reveal reveal-delay-1">Why People Watch Science Content</h1>
+
+    <p class="lead reveal reveal-delay-2">The research points to six distinct motivations that, when a channel addresses all of them, produce the kind of loyal, engaged audience that sustains a channel long-term.</p>
+
+    <ul class="clean reveal">
+      <li><strong>Awe as gateway.</strong> Viewers are not primarily seeking information. They are seeking the feeling of encountering something larger than themselves. Awe has been experimentally shown to open people to engaging with complex scientific material they would otherwise avoid.</li>
+      <li><strong>Identity construction.</strong> Regular viewers of science content are building a self-image — the kind of person who asks big questions, who is curious, who doesn't need clean answers. This drives subscription and return visits more reliably than any single video's quality.</li>
+      <li><strong>Community and shared inquiry.</strong> Comments sections of channels like Kurzgesagt function as collaborative thinking spaces. "Community integration" is one of the top six factors viewers cite when asked why they return.</li>
+      <li><strong>Permission to think independently.</strong> The most effective science communicators avoid telling audiences what to conclude. They present information, frame it emotionally, and let viewers do the interpretive work. Audiences respond with stronger loyalty.</li>
+      <li><strong>Emotional regulation.</strong> Audiences are not just watching to learn — they are watching to feel better. Inspirational content measurably reduces stress over multi-day periods. Content that provides that while also informing creates deep habitual return.</li>
+      <li><strong>Feeling competent.</strong> The "dedicated learner" audience watches 2.5× more minutes, re-watches segments, and converts to subscribers at substantially higher rates.</li>
+    </ul>
+
+    <div class="note reveal" data-label="Design Implication">
+      <p>These motivations point to a specific kind of show: one that opens with awe, structures its argument clearly, introduces multiple human voices, creates space for viewers to think rather than just absorb, and maintains a calm curious tone throughout.</p>
+    </div>
+
+    <h2 class="reveal">Expanding the Audience</h2>
+
+    <p class="red-note reveal">Note: Following the theology route so strongly in this section is something of an experiment. Photinus Films is designed to pursue a diverse range of natural and scientific topics. But in attempting to define an intersection specific enough to begin our conversation, leaning into the science-theology crossover makes a curious amount of sense as a starting point. Think of it as a useful lens, not a ceiling.</p>
+
+    <ul class="clean reveal">
+      <li><strong>Faith and spirituality viewers</strong> — often ignored by science content, highly responsive to respectful treatment of theological questions</li>
+      <li><strong>Philosophy and ethics audiences</strong> — drawn to the question of meaning that underlies the origin question</li>
+      <li><strong>Documentary and long-form viewers</strong> — a growing segment returning to depth after short-form fatigue</li>
+      <li><strong>Education-adjacent viewers</strong> — parents, students, self-directed learners. 90% of teachers who use YouTube report using it in lessons or assignments (YouTube, 2024).</li>
+    </ul>
+
+  </div>
+</section>
+
+
+<!-- ══════════════════════════ 04 THE SHOW ════════════════════════ -->
+<section class="section" id="s-show">
+  <div class="section-inner">
+    <div class="section-watermark" aria-hidden="true">04</div>
+
+    <span class="stag reveal">Section 04 — The Show</span>
+    <h1 class="reveal reveal-delay-1">WT: Origin of Life — Format &amp; Structure</h1>
+
+    <p class="lead reveal reveal-delay-2">The show is built around a single recurring question examined from multiple angles — approached through different disciplinary lenses and presented through a combination of 3D animation and multiple on-camera voices.</p>
+
+    <h2 class="reveal">Format: Hybrid Multi-Voice + 3D Animation</h2>
+
+    <div class="aside reveal">AsapSCIENCE (10.8M subs) is the strongest precedent for a two-founder science channel where the hosts are equal co-creators. The show is the brand; the hosts are recurring characters within it.</div>
+
+    <p class="reveal">The model combines the visual power of animation-first channels (Kurzgesagt's 25.2M subscribers) with the parasocial trust built by host-led channels (Veritasium's upward earnings trend, Huge If True's growth from 0 to 11M subscribers in three years). Neither approach alone represents the strongest position in 2025.</p>
+
+    <p class="reveal clearfix">The multi-voice structure is not a roster. It is a format argument: the origin of life question is too large for one perspective. Different voices — a molecular biologist, a geologist, a philosopher of science, a theologian — approach the same question from genuinely different vantage points.</p>
+
+    <h2 class="reveal">Animation Direction</h2>
+    <p class="reveal">3D animation at documentary quality — precise, dimensional, emotionally legible. The visual language draws from scientific cross-section illustration: the tradition of Leonardo's notebooks, where objects are understood by rendering their interior structure alongside their exterior form.</p>
+
+    <h2 class="reveal">Content Architecture</h2>
+    <ul class="clean reveal">
+      <li><strong>Weekly episodes (8–15 min)</strong> — structured segments of the 60-min documentary, released sequentially. Channels with consistent weekly schedules see 67% faster subscriber growth and 89% higher audience retention.</li>
+      <li><strong>Full-length documentary (60 min)</strong> — assembled from episodic cuts. Discoverable by search, appropriate for educational licensing. Long-form content (30+ min) now receives 35–45% better algorithmic promotion.</li>
+      <li><strong>Daily BTS Shorts</strong> — behind-the-scenes material showing what is real and what isn't: how animations were built, what AI tools were used and where they reached their limits, what experiments were filmed and why, what was animated rather than captured. The production process itself is part of the show's epistemology.</li>
+    </ul>
+
+    <h2 class="reveal">Reference Channels</h2>
+    <div class="table-wrap reveal">
+      <table class="data-table">
+        <tr>
+          <th>Channel</th>
+          <th>Subs</th>
+          <th>Format</th>
+          <th>Earnings Trend</th>
+          <th>Relevant Note</th>
+        </tr>
+        <tr>
+          <td>Kurzgesagt</td>
+          <td>25.2M</td>
+          <td>Pure animation</td>
+          <td>Downward</td>
+          <td>Strong brand, slow growth phase. One origin of life video = 8.2M views.</td>
+        </tr>
+        <tr>
+          <td>Veritasium</td>
+          <td>20.7M</td>
+          <td>Host-led</td>
+          <td>Upward</td>
+          <td>Host credibility (PhD) as trust driver. No animation.</td>
+        </tr>
+        <tr>
+          <td>Huge If True</td>
+          <td>~11M</td>
+          <td>Host + animation</td>
+          <td>Rapid growth</td>
+          <td>0→11M in 3 years. Hybrid model. Fastest-growing science-adjacent channel.</td>
+        </tr>
+        <tr>
+          <td>AsapSCIENCE</td>
+          <td>10.8M</td>
+          <td>Two hosts + animation</td>
+          <td>Stable</td>
+          <td>Best precedent for equal co-creator model in science.</td>
+        </tr>
+        <tr>
+          <td>PBS Eons</td>
+          <td>~4M</td>
+          <td>Rotating hosts</td>
+          <td>Stable</td>
+          <td>Multi-host model works when the show is the brand.</td>
+        </tr>
+        <tr>
+          <td>melodysheep</td>
+          <td>3.2M</td>
+          <td>Cinematic / musical</td>
+          <td>Stable</td>
+          <td>Highest awe sentiment in our comment study (28.1%). Lowest friction of any channel.</td>
+        </tr>
+      </table>
+    </div>
+
+  </div>
+</section>
+
+
+<!-- ══════════════════════════ 05 REVENUE ═════════════════════════ -->
+<section class="section" id="s-revenue">
+  <div class="section-inner">
+    <div class="section-watermark" aria-hidden="true">05</div>
+
+    <span class="stag reveal">Section 05 — Revenue</span>
+    <h1 class="reveal reveal-delay-1">Revenue Model</h1>
+
+    <p class="lead reveal reveal-delay-2">The channel has multiple revenue streams at different stages of development. The near-term model is built around sponsorships and AdSense. The medium-term model expands into educational licensing, B2B pipeline services, and institutional content production.</p>
+
+    <div class="stats reveal">
+      <div class="stat">
+        <span class="stat-n">$5–$12</span>
+        <span class="stat-l">Education CPM<br/>per thousand views</span>
+      </div>
+      <div class="stat">
+        <span class="stat-n">$5K–$15K</span>
+        <span class="stat-l">Per sponsor integration<br/>mid-tier channel</span>
+      </div>
+      <div class="stat">
+        <span class="stat-n">109%</span>
+        <span class="stat-l">Higher ROI than<br/>linear TV</span>
+      </div>
+    </div>
+
+    <p class="reveal">The science and education niche commands sponsorship CPMs of $15–$25. At 100K–1M subscribers, a mid-tier channel can command $5,000–$15,000 per sponsored integration.* Sponsorships bypass YouTube's revenue split entirely.</p>
+
+    <div class="note reveal" data-label="* On the sponsorship figures">
+      <p>The $5K–$15K range is drawn from InfluenceFlow's 2025 science creator sponsorship survey (400+ channels), CreatorsJet's Q4 2025 benchmark report, and Descript's creator earnings analysis. These figures represent negotiated flat-fee deals and reflect what brands in health, technology, learning platforms, and scientific tools are currently paying. The range is wide because rate depends heavily on audience demographics and engagement rate.</p>
+    </div>
+
+    <h2 class="reveal">Scalability — Secondary Revenue Streams</h2>
+    <div class="rev-grid reveal">
+      <div class="rev-cell">
+        <h3>Educational Licensing</h3>
+        <p>YouTube Player for Education enables licensing fees when content is embedded in classroom environments. 90% of teachers using YouTube report using it in lessons.</p>
+      </div>
+      <div class="rev-cell">
+        <h3>Independent Learning</h3>
+        <p>Subscription access to homeschool co-ops, online education platforms, and independent learning communities. Precedent: CrashCourse content via educational partners.</p>
+      </div>
+      <div class="rev-cell">
+        <h3>B2B — Science Organisations</h3>
+        <p>Scientists and labs need public-facing content to support funding applications and institutional visibility. Lampyridae's pipeline applied as a client service.</p>
+      </div>
+      <div class="rev-cell">
+        <h3>B2B — Companies &amp; Government</h3>
+        <p>Mission storytelling for science-adjacent brands. PSA production for government science agencies. Documentary-style, not marketing.</p>
+      </div>
+    </div>
+
+    <p class="footnote reveal">The channel functions as proof of the pipeline. Every episode demonstrates to prospective B2B clients what the studio is capable of producing. The public channel and the commercial pipeline reinforce each other.</p>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════ 06 CHANNELS ════════════════════════ -->
+<section class="section" id="s-channels">
+  <div class="section-inner">
+    <div class="section-watermark" aria-hidden="true">06</div>
+
+    <span class="stag reveal">Section 06 — Channel Landscape</span>
+    <h1 class="reveal reveal-delay-1">Top Science Channels &amp; Their Relationship to Theology / Meaning</h1>
+
+    <p class="lead reveal reveal-delay-2">A breakdown of the 20 largest science-adjacent YouTube channels, assessed for how often and deeply they engage with theological, philosophical, or meaning-of-existence questions. This is the competitive and contextual landscape Photinus Films is entering.</p>
+
+    <div class="table-wrap reveal">
+      <table class="data-table">
+        <tr>
+          <th>Channel</th>
+          <th>Subs</th>
+          <th>Format</th>
+          <th>Theology / Meaning</th>
+          <th>Notes</th>
+        </tr>
+        <tr><td>Vsauce</td><td>24.9M</td><td>Host-led, philosophical</td><td class="active-tag">Active</td><td>Regularly explores consciousness, free will, existence. Most philosophy-adjacent of any large science channel.</td></tr>
+        <tr><td>Kurzgesagt</td><td>25.2M</td><td>Pure animation</td><td>Adjacent</td><td>Existential framing of many topics. Avoids theology explicitly but engages the emotional territory adjacent to it.</td></tr>
+        <tr><td>Veritasium</td><td>20.7M</td><td>Host-led, experiment</td><td>Adjacent</td><td>Occasionally touches on determinism, consciousness, the nature of reality. Does not engage theology.</td></tr>
+        <tr><td>CrashCourse</td><td>15.9M</td><td>Multi-host, educational</td><td class="none-tag">None</td><td>Curriculum-focused. No theological engagement.</td></tr>
+        <tr><td>AsapSCIENCE</td><td>10.8M</td><td>Two hosts + whiteboard</td><td class="none-tag">None</td><td>Light science explainers. No existential or theological content.</td></tr>
+        <tr><td>Khan Academy</td><td>9.4M</td><td>Tutorial</td><td class="none-tag">None</td><td>Pure educational resource.</td></tr>
+        <tr><td>Huge If True</td><td>7.6M</td><td>Host + animation</td><td class="none-tag">None</td><td>Optimistic technology explainers. Not existential questions.</td></tr>
+        <tr><td>SciShow</td><td>7.6M</td><td>Multi-host, news</td><td class="none-tag">None</td><td>Science news and explainers. No existential framing.</td></tr>
+        <tr><td>PBS Space Time</td><td>4.5M</td><td>Host-led, deep physics</td><td>Adjacent</td><td>Occasionally touches on fine-tuned universe arguments, nature of time.</td></tr>
+        <tr><td>Numberphile</td><td>4.6M</td><td>Host + experts</td><td class="none-tag">None</td><td>Pure mathematics.</td></tr>
+        <tr><td>PBS Eons</td><td>~4M</td><td>Rotating hosts</td><td class="none-tag">None</td><td>Deep time, evolution, paleontology. No theological engagement.</td></tr>
+        <tr><td>Be Smart</td><td>5.2M</td><td>Host-led</td><td>Adjacent</td><td>Closest to Lampyridae's territory in PBS ecosystem. 2.2% theology-bridge comment rate — highest in our study.</td></tr>
+        <tr><td>melodysheep</td><td>3.2M</td><td>Cinematic / musical</td><td>Adjacent</td><td>Emotional register closer to the spiritual than any other channel. Highest awe sentiment (28.1%).</td></tr>
+        <tr><td>Closer to Truth</td><td>~400K</td><td>Interview / documentary</td><td class="active-tag">Active</td><td>Only large channel explicitly engaging theology, philosophy of religion, consciousness. 22 seasons. No production quality. The intellectual framework without the cinematic register.</td></tr>
+        <tr><td>Spirit Science</td><td>~900K</td><td>Animation</td><td class="active-tag">Active</td><td>Animated spiritual-science content. Not scientifically rigorous. What Photinus Films would be if it abandoned scientific accuracy.</td></tr>
+        <tr><td>Inspiring Philosophy</td><td>~280K</td><td>Narrated / documentary</td><td class="active-tag">Active</td><td>Christian apologetics engaging science carefully. Small but highly engaged. Demonstrates the faith-science audience exists.</td></tr>
+        <tr><td>Sadhguru</td><td>10M+</td><td>Spiritual teacher</td><td class="active-tag">Active</td><td>Regularly engages scientific topics from a non-materialist perspective. Demonstrates the scale of the audience that wants spiritual-scientific crossover.</td></tr>
+        <tr><td>Next Level Soul</td><td>1.2M</td><td>Interview / podcast</td><td class="active-tag">Active</td><td>Covers consciousness, quantum physics, spiritual questions without dogma. Growing rapidly. Closest editorial stance to Photinus Films but lacks scientific rigour.</td></tr>
+        <tr><td>The Rest Is Science</td><td>~500K</td><td>Podcast / conversation</td><td>Adjacent</td><td>Hannah Fry and Michael Stevens (Vsauce). Launched Nov 2025, 99M views. Fast-growing — direct evidence the audience for thoughtful broad science is expanding.</td></tr>
+      </table>
+    </div>
+
+    <h2 class="reveal">What This Tells Us</h2>
+    <ul class="clean reveal">
+      <li><strong>No large science channel actively bridges science and theology with rigour and production quality.</strong> The combination that matters is genuinely unoccupied.</li>
+      <li><strong>Channels that do engage theology are either small and rigorous or large and unrigorous.</strong> Spirit Science is the cautionary example. Closer to Truth is the intellectual precedent without the production. Photinus Films sits at the intersection of both.</li>
+      <li><strong>The faith-science audience is demonstrated but underserved.</strong> Inspiring Philosophy's engagement rate, Next Level Soul's growth, and Closer to Truth's 22-season longevity confirm the audience exists and is loyal.</li>
+    </ul>
+
+    <div class="note reveal" data-label="On Defining the Genre">
+      <p>The most useful description of Photinus Films' content genre: <em>cinematic science inquiry that holds the question of origin and meaning with equal respect for empirical evidence and spiritual tradition, without resolving it into either framework.</em> The closest production analogue is melodysheep. The closest intellectual analogue is Closer to Truth. Photinus Films sits at the intersection of both.</p>
+    </div>
+
+    <p class="footnote reveal">Sources: HypeAuditor Science &amp; Technology Rankings May 2026 · Wikipedia · Feedspot theology and spiritual YouTube rankings 2026 · Starterstory.com science channel analysis 2025</p>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════ 07 COMMENTS ════════════════════════ -->
+<section class="section" id="s-comments">
+  <div class="section-inner">
+    <div class="section-watermark" aria-hidden="true">07</div>
+
+    <span class="stag reveal">Section 07 — Audience Sentiment Research</span>
+    <h1 class="reveal reveal-delay-1">What Viewers Actually Say — Real Comment Data</h1>
+
+    <p class="lead reveal reveal-delay-2">2,391 comments pulled directly via the YouTube Data API across six videos. Sentiment categorised by keyword analysis. These are not estimates — this is the actual language the audience uses when responding to origin-of-life and adjacent science content.</p>
+
+    <div class="note reveal" data-label="Methodology">
+      <p>400 top-ranked comments per video via YouTube Data API v3. Seven sentiment categories: awe/wonder, philosophical/reflective, positive/intellectual, scientific debate, skeptical, negative/frustrated, theology bridge. A comment can fall into multiple categories. Pinned channel posts excluded.</p>
+    </div>
+
+    <h2 class="reveal">Engagement Ratios</h2>
+    <div class="table-wrap reveal">
+      <table class="data-table">
+        <tr>
+          <th>Video</th>
+          <th>Views</th>
+          <th>Like ratio</th>
+          <th>Comment ratio</th>
+          <th>Likes / comment</th>
+        </tr>
+        <tr><td>Kurzgesagt — Ancient Life as Old as the Universe</td><td>8,192,047</td><td>3.50%</td><td>0.133%</td><td>26.2</td></tr>
+        <tr><td>melodysheep — Panspermia / Life Beyond Ch.4</td><td>1,736,859</td><td>4.12%</td><td>0.277%</td><td>14.8</td></tr>
+        <tr><td>Be Smart — Where Did Life Come From</td><td>3,021,739</td><td>2.49%</td><td>0.318%</td><td>7.8</td></tr>
+        <tr><td>Be Smart — Can Life Be Explained by Physics (Cox)</td><td>2,213,660</td><td>2.25%</td><td>0.236%</td><td>9.5</td></tr>
+        <tr><td>Huge If True — CERN</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+        <tr><td>Huge If True — Black Hole</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+      </table>
+    </div>
+
+    <h2 class="reveal">Sentiment Breakdown</h2>
+    <div class="table-wrap reveal">
+      <table class="data-table">
+        <tr>
+          <th>Channel</th>
+          <th>Awe %</th>
+          <th>Philosophical %</th>
+          <th>Positive %</th>
+          <th>Debate %</th>
+          <th>Negative %</th>
+          <th>Theology %</th>
+        </tr>
+        <tr><td>Kurzgesagt — Ancient Life</td><td>31.0</td><td>18.4</td><td>14.4</td><td>15.4</td><td>11.1</td><td>0.0</td></tr>
+        <tr><td>melodysheep — Panspermia</td><td>28.1</td><td>9.3</td><td>17.3</td><td>3.8</td><td>5.5</td><td>0.0</td></tr>
+        <tr><td>Be Smart — Where Did Life Come From</td><td>7.2</td><td>18.2</td><td>7.2</td><td>11.5</td><td>4.5</td><td>2.2</td></tr>
+        <tr><td>Be Smart — Can Life Be Explained by Physics</td><td>15.2</td><td>14.0</td><td>10.0</td><td>6.8</td><td>6.2</td><td>0.2</td></tr>
+        <tr><td>Huge If True — CERN</td><td>19.3</td><td>4.3</td><td>15.8</td><td>7.5</td><td>1.5</td><td>0.0</td></tr>
+        <tr><td>Huge If True — Black Hole</td><td>14.3</td><td>4.3</td><td>11.3</td><td>3.0</td><td>3.5</td><td>0.0</td></tr>
+      </table>
+    </div>
+
+    <h2 class="reveal">Five Findings That Matter</h2>
+    <ul class="clean reveal">
+      <li><strong>Animation drives awe; hosts drive debate.</strong> Kurzgesagt (31% awe, 15.4% debate) and melodysheep (28.1% awe, 3.8% debate) confirm the pattern in real data. Be Smart, the most host-led format, has the lowest awe rate (7.2%) and highest debate rate (11.5%).</li>
+      <li><strong>melodysheep is the friction model.</strong> Only 5.5% negative and 3.8% debate — the lowest friction profile in the study. The cinematic music-and-visuals format makes people feel rather than argue.</li>
+      <li><strong>The theology bridge gap is confirmed and total.</strong> Across 2,391 comments on six videos, only Be Smart's "Where Did Life Come From" registered theology-bridge comments — at 2.2%. Every other channel scored zero.</li>
+      <li><strong>The most-liked comments are about the viewer, not the content.</strong> 4,754 likes on "Find someone who looks at you the way Cleo looks at the CERN collider." 1,957 likes on a plumber writing about microbes as cosmic cousins. Neither is about the science. Both are about personal emotional connection.</li>
+      <li><strong>Kurzgesagt's likes-per-comment ratio (26.2) signals community consensus.</strong> Viewers upvote existing comments at 3× Be Smart's rate rather than adding new perspectives — indicating emotional resonance and community cohesion.</li>
+    </ul>
+
+    <h2 class="reveal">Notable Comments</h2>
+    <div class="comment-cards reveal">
+      <div class="comment-card">
+        <span class="comment-source">Kurzgesagt · 2,376 likes</span>
+        <p class="comment-text">"I can't explain precisely why, but this video felt extremely magical to watch. I don't know if it was the storytelling, the visuals, the music..."</p>
+      </div>
+      <div class="comment-card">
+        <span class="comment-source">Kurzgesagt · 1,957 likes</span>
+        <p class="comment-text">"As a professional plumber of 15 years, I am absolutely astounded by this video. To think that the microbes in toilets and pipes could be our cosmic cousins..."</p>
+      </div>
+      <div class="comment-card">
+        <span class="comment-source">Kurzgesagt · 66 likes — notable for language</span>
+        <p class="comment-text">"That's the reason why we are so curious about the stars — because in reality we are just homesick."</p>
+      </div>
+      <div class="comment-card">
+        <span class="comment-source">Huge If True CERN · 4,754 likes — highest in the dataset</span>
+        <p class="comment-text">"Find someone who looks at you the way Cleo looks at the CERN collider. Your passion and awe for this stuff is infectious."</p>
+      </div>
+      <div class="comment-card">
+        <span class="comment-source">Be Smart · 1,983 likes</span>
+        <p class="comment-text">"Scientists: H O W? W H E R E? W H E N?&nbsp;&nbsp;&nbsp; Philosophers: y tho"</p>
+      </div>
+      <div class="comment-card">
+        <span class="comment-source">melodysheep · 2,651 likes</span>
+        <p class="comment-text">"I see Melodysheep, I click instantly." — Brand loyalty expressed as instinct. This is what a mature channel looks like.</p>
+      </div>
+    </div>
+
+    <p class="footnote reveal">Data: YouTube Data API v3, May 2026 · 2,391 comments across 6 videos · Keyword sentiment analysis built for this project · Raw CSV files archived · Sources: MoffettNathanson 2026 · InfluenceFlow 2025 · Nielsen 2025 · upGrowth 2026 · Beautemps & Bresges, Frontiers in Communication 2021 · Cottrell MSU thesis 2022 · avestura.dev Kurzgesagt sentiment analysis 2023</p>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════ FOOTER ═════════════════════════════ -->
+<footer>
+  <span class="footer-title">Photinus Films</span>
+  A Science Content Studio · WT: Origin of Life<br/>
+  Working Concept Document v.02 — May 2026<br/>
+  For discussion between founding partners
+</footer>
+
+
+<script>
+// ── DEPTH OF FIELD ──────────────────────────────────────────────────
+const sections = document.querySelectorAll('.section');
+const dots = document.querySelectorAll('.dot');
+const progress = document.getElementById('progress');
+
+function updateDOF() {
+  const vh = window.innerHeight;
+  const vCenter = vh * 0.5;
+  const scrollTop = window.scrollY;
+  const docH = document.documentElement.scrollHeight - vh;
+  const scrollPct = Math.min(scrollTop / docH * 100, 100);
+
+  progress.style.height = scrollPct + '%';
+
+  let closestIdx = 0;
+  let closestDist = Infinity;
+
+  sections.forEach((sec, i) => {
+    const rect = sec.getBoundingClientRect();
+    const secCenter = rect.top + rect.height * 0.5;
+    const dist = Math.abs(secCenter - vCenter);
+
+    // Dead zone: section stays fully sharp until it's 55% of vh from center
+    // Then blur ramps up over the next 70% of vh — giving 70% more in-focus dwell
+    const deadZone = vh * 0.55;
+    const blurZone = vh * 0.70;
+    const effectiveDist = Math.max(0, dist - deadZone);
+    const norm = Math.min(effectiveDist / blurZone, 1);
+
+    // Depth of field: blur, fade, scale out as section moves away from focal plane
+    const blur = norm * 3.5;
+    const opacity = 1 - norm * 0.62;
+    const scale = 1 - norm * 0.025;
+
+    sec.style.filter = `blur(${blur.toFixed(2)}px)`;
+    sec.style.opacity = opacity.toFixed(3);
+    sec.style.transform = `scale(${scale.toFixed(4)})`;
+
+    if (dist < closestDist) {
+      closestDist = dist;
+      closestIdx = i;
+    }
+  });
+
+  dots.forEach((dot, i) => {
+    dot.classList.toggle('active', i === closestIdx);
+  });
+}
+
+// RAF-based smooth scroll tracking
+let ticking = false;
+window.addEventListener('scroll', () => {
+  if (!ticking) {
+    requestAnimationFrame(() => { updateDOF(); ticking = false; });
+    ticking = true;
+  }
+}, { passive: true });
+
+updateDOF();
+
+// ── NAV DOT CLICK ────────────────────────────────────────────────────
+dots.forEach(dot => {
+  dot.addEventListener('click', () => {
+    const target = document.getElementById(dot.dataset.target);
+    if (target) target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  });
+});
+
+// ── ENTRANCE ANIMATIONS ──────────────────────────────────────────────
+const revealObs = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+      revealObs.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+
+document.querySelectorAll('.reveal').forEach(el => revealObs.observe(el));
+
+// ── COVER REVEAL ON LOAD ─────────────────────────────────────────────
+window.addEventListener('load', () => {
+  document.querySelectorAll('#s-cover .reveal').forEach(el => {
+    el.classList.add('visible');
+  });
+});
+</script>
+
+</body>
+</html>
