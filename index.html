@@ -85,8 +85,15 @@ body {
   padding: 80px 0;
   position: relative;
   border-bottom: 1px solid var(--rule-light);
-  will-change: filter, opacity, transform;
-  transition: filter 0.4s ease, opacity 0.4s ease, transform 0.4s ease;
+  /* No CSS transitions — JS rAF drives filter/opacity/scale directly */
+}
+
+@media (min-width: 768px) {
+  .section { will-change: filter, opacity, transform; }
+}
+
+@media (max-width: 767px) {
+  .section { will-change: opacity, transform; }
 }
 
 .section:last-child { border-bottom: none; }
@@ -96,6 +103,26 @@ body {
   width: 100%;
   padding: 0 80px 0 100px;
   position: relative;
+}
+
+@media (max-width: 767px) {
+  .section-inner {
+    padding: 0 24px 0 28px;
+  }
+  .section-watermark {
+    font-size: 100px;
+    left: 20px;
+  }
+  h1 { font-size: 26px; }
+  .cover-title { font-size: 52px; }
+  .pull p { font-size: 16px; }
+  .stats { flex-direction: column; }
+  .stat { border-right: none; border-bottom: 1px solid var(--rule); padding-left: 0; }
+  .stat:last-child { border-bottom: none; }
+  .rev-grid { grid-template-columns: 1fr; }
+  .aside { float: none; width: 100%; margin: 0 0 16px 0; }
+  #nav-dots { right: 10px; }
+  footer { padding: 40px 28px; }
 }
 
 /* Alternating background tint */
@@ -580,29 +607,23 @@ ul.clean li strong { color: var(--ink); font-weight: 600; }
 }
 
 /* ── ENTRANCE ANIMATIONS ───────────────────────────────── */
-.reveal {
+/* Gated by .js-ready so content never disappears if JS is slow or fails */
+.js-ready .reveal {
   opacity: 0;
-  transform: translateY(24px);
-  transition: opacity 0.7s ease, transform 0.7s ease;
+  transform: translateY(18px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
 }
 
-.reveal.visible {
+.js-ready .reveal.visible {
   opacity: 1;
   transform: translateY(0);
 }
 
-.reveal-delay-1 { transition-delay: 0.1s; }
-.reveal-delay-2 { transition-delay: 0.2s; }
-.reveal-delay-3 { transition-delay: 0.3s; }
-.reveal-delay-4 { transition-delay: 0.4s; }
-.reveal-delay-5 { transition-delay: 0.5s; }
-
-/* Pull quote border draw */
-.pull {
-  border-left-width: 0;
-  transition: border-left-width 0.6s ease 0.3s;
-}
-.pull.visible { border-left-width: 2.5px; }
+.js-ready .reveal-delay-1 { transition-delay: 0.08s; }
+.js-ready .reveal-delay-2 { transition-delay: 0.16s; }
+.js-ready .reveal-delay-3 { transition-delay: 0.24s; }
+.js-ready .reveal-delay-4 { transition-delay: 0.32s; }
+.js-ready .reveal-delay-5 { transition-delay: 0.40s; }
 
 /* ── FOOTER ────────────────────────────────────────────── */
 footer {
@@ -1089,10 +1110,16 @@ footer .footer-title {
 
 
 <script>
+// Mark body as JS-ready — gates reveal animations so text never stays hidden
+document.body.classList.add('js-ready');
+
 // ── DEPTH OF FIELD ──────────────────────────────────────────────────
 const sections = document.querySelectorAll('.section');
 const dots = document.querySelectorAll('.dot');
 const progress = document.getElementById('progress');
+
+// Detect mobile — blur disabled on mobile for performance
+const isMobile = () => window.innerWidth < 768;
 
 function updateDOF() {
   const vh = window.innerHeight;
@@ -1105,23 +1132,47 @@ function updateDOF() {
 
   let closestIdx = 0;
   let closestDist = Infinity;
+  const mobile = isMobile();
 
   sections.forEach((sec, i) => {
     const rect = sec.getBoundingClientRect();
+
+    // Use how much of the section is outside the viewport
+    // Works correctly for both short and tall sections
+    const aboveViewport = Math.max(0, -rect.bottom);        // px hidden above
+    const belowViewport = Math.max(0, rect.top - vh);       // px hidden below
+    const outOfView = Math.max(aboveViewport, belowViewport);
+
+    // Also track center distance for nav dot purposes
     const secCenter = rect.top + rect.height * 0.5;
     const dist = Math.abs(secCenter - vCenter);
 
-    // Dead zone: section stays fully sharp until it's 55% of vh from center
-    // Then blur ramps up over the next 70% of vh — giving 70% more in-focus dwell
-    const deadZone = vh * 0.55;
-    const blurZone = vh * 0.70;
-    const effectiveDist = Math.max(0, dist - deadZone);
-    const norm = Math.min(effectiveDist / blurZone, 1);
+    // Blur starts when 15% of section has left the viewport
+    // Fully blurred when 35% has left — tight, snappy transition
+    const startBlur = vh * 0.15;
+    const fullBlur  = vh * 0.35;
+    const norm = Math.min(Math.max(0, outOfView - startBlur) / (fullBlur - startBlur), 1);
 
-    // Depth of field: blur, fade, scale out as section moves away from focal plane
-    const blur = norm * 3.5;
-    const opacity = 1 - norm * 0.62;
-    const scale = 1 - norm * 0.025;
+    // On mobile: zero blur, just a faint opacity nudge
+    // On desktop: up to 3.5px blur with opacity and scale
+    const blur    = mobile ? 0 : norm * 3.5;
+    const opacity = 1 - norm * (mobile ? 0.08 : 0.55);
+    const scale   = 1 - norm * 0.022;
+
+    sec.style.filter    = blur > 0.01 ? `blur(${blur.toFixed(2)}px)` : 'none';
+    sec.style.opacity   = opacity.toFixed(3);
+    sec.style.transform = `scale(${scale.toFixed(4)})`;
+
+    if (dist < closestDist) {
+      closestDist = dist;
+      closestIdx = i;
+    }
+  });
+
+  dots.forEach((dot, i) => {
+    dot.classList.toggle('active', i === closestIdx);
+  });
+}
 
     sec.style.filter = `blur(${blur.toFixed(2)}px)`;
     sec.style.opacity = opacity.toFixed(3);
@@ -1165,14 +1216,17 @@ const revealObs = new IntersectionObserver((entries) => {
       revealObs.unobserve(entry.target);
     }
   });
-}, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+}, { threshold: 0.05, rootMargin: '0px 0px -20px 0px' });
 
 document.querySelectorAll('.reveal').forEach(el => revealObs.observe(el));
 
-// ── COVER REVEAL ON LOAD ─────────────────────────────────────────────
+// Immediately reveal anything already in the viewport on load
 window.addEventListener('load', () => {
-  document.querySelectorAll('#s-cover .reveal').forEach(el => {
-    el.classList.add('visible');
+  document.querySelectorAll('.reveal').forEach(el => {
+    const rect = el.getBoundingClientRect();
+    if (rect.top < window.innerHeight && rect.bottom > 0) {
+      el.classList.add('visible');
+    }
   });
 });
 </script>
